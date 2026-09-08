@@ -1,0 +1,13 @@
+[2026-09-08 12:26:37,959] INFO - Entered the data ingestion method or component
+[2026-09-08 12:26:37,960] INFO - Read the dataset as dataframe
+[2026-09-08 12:26:37,962] INFO - Train test split initiated
+[2026-09-08 12:26:37,965] INFO - Ingestion of the data is completed
+[2026-09-08 12:26:37,966] INFO - Read train and test data completed
+[2026-09-08 12:26:37,966] INFO - Obtaining preprocessing object
+[2026-09-08 12:26:37,966] INFO - Categorical columns: ['gender', 'race_ethnicity', 'parental_level_of_education', 'lunch', 'test_preparation_course']
+[2026-09-08 12:26:37,966] INFO - Numerical columns: ['reading_score', 'writing_score']
+[2026-09-08 12:26:37,967] INFO - Applying preprocessing object on training dataframe and testing dataframe.
+[2026-09-08 12:26:38,750] INFO - Initial model scores: {'Random Forest': 0.8503931763714865, 'Gradient Boosting': 0.8722065324117144, 'AdaBoost': 0.8516493631886939, 'K-Nearest Neighbors': 0.47561174068704326, 'Decision Tree': 0.7473477264582984, 'XGBoost': 0.8212204901494256, 'CatBoost': 0.8504102938326895}
+[2026-09-08 12:26:38,750] INFO - Selected model for tuning: Gradient Boosting
+[2026-09-08 12:26:41,221] INFO - Best parameters: {'subsample': 0.8, 'n_estimators': 200, 'max_depth': 3, 'learning_rate': 0.1}
+[2026-09-08 12:26:41,221] INFO - Best model: Gradient Boosting, R2 score: 0.8742438512627899

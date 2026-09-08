@@ -1,0 +1,10 @@
+[2026-09-08 12:24:01,567] INFO - Entered the data ingestion method or component
+[2026-09-08 12:24:01,568] INFO - Read the dataset as dataframe
+[2026-09-08 12:24:01,571] INFO - Train test split initiated
+[2026-09-08 12:24:01,574] INFO - Ingestion of the data is completed
+[2026-09-08 12:24:01,575] INFO - Read train and test data completed
+[2026-09-08 12:24:01,575] INFO - Obtaining preprocessing object
+[2026-09-08 12:24:01,575] INFO - Categorical columns: ['gender', 'race_ethnicity', 'parental_level_of_education', 'lunch', 'test_preparation_course']
+[2026-09-08 12:24:01,575] INFO - Numerical columns: ['reading_score', 'writing_score']
+[2026-09-08 12:24:01,576] INFO - Applying preprocessing object on training dataframe and testing dataframe.
+[2026-09-08 12:24:02,473] INFO - Best model: Gradient Boosting, R2 score: 0.8724024803317331

@@ -1,0 +1,144 @@
+import os
+import sys
+from dataclasses import dataclass
+
+from sklearn.ensemble import (
+    RandomForestRegressor,
+    GradientBoostingRegressor,
+    AdaBoostRegressor,
+)
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.metrics import r2_score
+
+from xgboost import XGBRegressor
+from catboost import CatBoostRegressor
+
+from src.exception import CustomException
+from src.logger import logging
+from src.utils import save_object, evaluate_models
+
+
+@dataclass
+class ModelTrainerConfig:
+    trained_model_file_path: str = os.path.join("artifacts", "model.pkl")
+
+
+class ModelTrainer:
+    def __init__(self):
+        self.model_trainer_config = ModelTrainerConfig()
+
+    def initiate_model_trainer(self, train_array, test_array):
+        try:
+            X_train, y_train = train_array[:, :-1], train_array[:, -1]
+            X_test, y_test = test_array[:, :-1], test_array[:, -1]
+
+            models = {
+                "Random Forest": RandomForestRegressor(random_state=42),
+                "Gradient Boosting": GradientBoostingRegressor(random_state=42),
+                "AdaBoost": AdaBoostRegressor(random_state=42),
+                "K-Nearest Neighbors": KNeighborsRegressor(),
+                "Decision Tree": DecisionTreeRegressor(random_state=42),
+                "XGBoost": XGBRegressor(
+                    random_state=42,
+                    objective="reg:squarederror",
+                    n_jobs=-1,
+                ),
+                "CatBoost": CatBoostRegressor(
+                    verbose=False,
+                    random_state=42,
+                ),
+            }
+
+            model_report = evaluate_models(
+                X_train=X_train,
+                y_train=y_train,
+                X_test=X_test,
+                y_test=y_test,
+                models=models,
+            )
+
+            best_model_name = max(model_report, key=model_report.get)
+            logging.info(f"Initial model scores: {model_report}")
+            logging.info(f"Selected model for tuning: {best_model_name}")
+
+            param_distributions = {
+                "Random Forest": {
+                    "n_estimators": [100, 200, 300],
+                    "max_depth": [None, 10, 20, 30],
+                    "min_samples_split": [2, 5, 10],
+                    "min_samples_leaf": [1, 2, 4],
+                },
+                "Gradient Boosting": {
+                    "n_estimators": [100, 200, 300],
+                    "learning_rate": [0.01, 0.05, 0.1],
+                    "max_depth": [2, 3, 5],
+                    "subsample": [0.8, 1.0],
+                },
+                "AdaBoost": {
+                    "n_estimators": [50, 100, 200],
+                    "learning_rate": [0.01, 0.1, 1.0],
+                    "loss": ["linear", "square", "exponential"],
+                },
+                "K-Nearest Neighbors": {
+                    "n_neighbors": [3, 5, 7, 10, 15],
+                    "weights": ["uniform", "distance"],
+                    "p": [1, 2],
+                },
+                "Decision Tree": {
+                    "max_depth": [None, 5, 10, 20, 30],
+                    "min_samples_split": [2, 5, 10],
+                    "min_samples_leaf": [1, 2, 4],
+                },
+                "XGBoost": {
+                    "n_estimators": [100, 200, 300],
+                    "max_depth": [3, 5, 7],
+                    "learning_rate": [0.01, 0.05, 0.1],
+                    "subsample": [0.8, 1.0],
+                    "colsample_bytree": [0.8, 1.0],
+                },
+                "CatBoost": {
+                    "iterations": [100, 200, 300],
+                    "depth": [4, 6, 8],
+                    "learning_rate": [0.01, 0.05, 0.1],
+                    "l2_leaf_reg": [1, 3, 5],
+                },
+            }
+
+            random_search = RandomizedSearchCV(
+                estimator=models[best_model_name],
+                param_distributions=param_distributions[best_model_name],
+                n_iter=10,
+                scoring="r2",
+                cv=3,
+                random_state=42,
+                n_jobs=-1,
+            )
+
+            random_search.fit(X_train, y_train)
+
+            best_model = random_search.best_estimator_
+            predictions = best_model.predict(X_test)
+            r2_square = r2_score(y_test, predictions)
+
+            logging.info(f"Best parameters: {random_search.best_params_}")
+            logging.info(
+                f"Best model: {best_model_name}, R2 score: {r2_square}"
+            )
+
+            if r2_square < 0.6:
+                raise CustomException(
+                    "No model achieved an R2 score greater than 0.6",
+                    sys,
+                )
+
+            save_object(
+                file_path=self.model_trainer_config.trained_model_file_path,
+                obj=best_model,
+            )
+
+            return r2_square
+
+        except Exception as e:
+            raise CustomException(e, sys)
