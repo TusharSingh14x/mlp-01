@@ -13,7 +13,7 @@ permissions:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: mlp01
+  ECR_REPOSITORY: student
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
