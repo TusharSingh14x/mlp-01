@@ -1,0 +1,11 @@
+.git
+.venv
+venv
+__pycache__
+*.pyc
+.ipynb_checkpoints
+notebook
+catboost_info
+logs
+.DS_Store
+mlproject.egg-info
