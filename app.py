@@ -5,6 +5,8 @@ import os
 from src.pipeline.predict_pipeline import CustomData,PredictPipeline
 from sklearn.preprocessing import StandardScaler
 from src.exception import CustomException
+
+
 from src.logger import logging
 import sys
 application = Flask(__name__)
